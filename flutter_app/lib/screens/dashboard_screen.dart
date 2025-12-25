@@ -87,7 +87,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Navigator.pop(context);
                       },
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
               const SizedBox(height: 16),
@@ -116,7 +116,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Navigator.pop(context);
                       },
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
               const SizedBox(height: 16),
@@ -144,7 +144,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Navigator.pop(context);
                       },
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
               const SizedBox(height: 16),
@@ -636,7 +636,7 @@ class _CreateTaskSheetState extends State<_CreateTaskSheet> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: selectedCategory,
+                initialValue: selectedCategory,
                 decoration: const InputDecoration(
                   labelText: 'Category',
                   border: OutlineInputBorder(),
@@ -659,7 +659,7 @@ class _CreateTaskSheetState extends State<_CreateTaskSheet> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: selectedPriority,
+                initialValue: selectedPriority,
                 decoration: const InputDecoration(
                   labelText: 'Priority',
                   border: OutlineInputBorder(),
@@ -900,7 +900,7 @@ class _EditTaskSheetState extends State<EditTaskSheet> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: selectedCategory,
+                initialValue: selectedCategory,
                 decoration: const InputDecoration(
                   labelText: 'Category',
                   border: OutlineInputBorder(),
@@ -921,7 +921,7 @@ class _EditTaskSheetState extends State<EditTaskSheet> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: selectedPriority,
+                initialValue: selectedPriority,
                 decoration: const InputDecoration(
                   labelText: 'Priority',
                   border: OutlineInputBorder(),
