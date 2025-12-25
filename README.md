@@ -263,9 +263,26 @@ Notes
 - UI: Material 3 style widgets and theming.
 
 
-```bash
-cd backend
-```
+
+## How to Test Status Changes
+
+### Test Flow:
+
+1. **Open the app** → You should see tasks with status chips
+2. **Look at the status chip** → Should show: `PENDING ✏️` (with edit icon)
+3. **Tap the status chip** → Bottom sheet opens with 3 options:
+   - 🕒 Pending
+   - ⏳ In Progress
+   - ✅ Completed
+4. **Select "In Progress"**
+5. **Verify:**
+   -  Snackbar shows: "Status updated to In Progress"
+   -  Status chip changes to: `IN PROGRESS ✏️`
+   -  Summary cards update:
+     - "Pending" count decreases by 1
+     - "In Progress" count increases by 1
+
+---
 
 ## Screenshots (Add in this repo)
 
