@@ -4,8 +4,16 @@ import '../models/task_model.dart';
 class TaskTile extends StatelessWidget {
   final Task task;
   final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback? onChangeStatus;
 
-  const TaskTile({super.key, required this.task, this.onEdit});
+  const TaskTile({
+    super.key,
+    required this.task,
+    this.onEdit,
+    this.onDelete,
+    this.onChangeStatus,
+  });
 
   Color _getStatusColor(String status) {
     switch (status) {
@@ -123,25 +131,39 @@ class TaskTile extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _getStatusColor(task.status).withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: _getStatusColor(task.status),
-                        width: 0.5,
+                  GestureDetector(
+                    onTap: onChangeStatus,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
                       ),
-                    ),
-                    child: Text(
-                      task.status.replaceAll('_', ' ').toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: _getStatusColor(task.status),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(task.status).withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: _getStatusColor(task.status),
+                          width: 0.5,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            task.status.replaceAll('_', ' ').toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: _getStatusColor(task.status),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.edit,
+                            size: 12,
+                            color: _getStatusColor(task.status),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -176,10 +198,13 @@ class TaskTile extends StatelessWidget {
               onSelected: (value) {
                 if (value == 'edit' && onEdit != null) {
                   onEdit!();
+                } else if (value == 'delete' && onDelete != null) {
+                  onDelete!();
                 }
               },
-              itemBuilder: (context) => [
-                const PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
+              itemBuilder: (context) => const [
+                PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
+                PopupMenuItem<String>(value: 'delete', child: Text('Delete')),
               ],
             ),
           ],

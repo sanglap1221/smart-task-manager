@@ -10,6 +10,7 @@ const taskSchema = z.object({
     due_date: z.string().optional().nullable(),
     category: z.string().optional(),
     priority: z.string().optional(),
+    status: z.enum(['pending', 'in_progress', 'completed']).optional(),
 });
 
 const classifySchema = z.object({
@@ -111,6 +112,17 @@ exports.updateTask = async (req, res) => {
         const { id } = req.params;
         const updateData = taskSchema.partial().parse(req.body);
 
+        // Get current task to track status change
+        const { data: currentTask, error: fetchError } = await supabase
+            .from('tasks')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (fetchError) throw fetchError;
+        if (!currentTask) return res.status(404).json({ error: 'Task not found' });
+
+        // Update task
         const { data, error } = await supabase
             .from('tasks')
             .update(updateData)
@@ -119,6 +131,19 @@ exports.updateTask = async (req, res) => {
 
         if (error) throw error;
         if (data.length === 0) return res.status(404).json({ error: 'Task not found' });
+
+        // Track status change in task_history if status was updated
+        if (updateData.status && updateData.status !== currentTask.status) {
+            await supabase.from('task_history').insert([
+                {
+                    task_id: id,
+                    action: 'status_changed',
+                    old_value: currentTask.status,
+                    new_value: updateData.status,
+                    changed_at: new Date().toISOString(),
+                },
+            ]);
+        }
         
         res.status(200).json({ data: data[0] });
     } catch (err) {

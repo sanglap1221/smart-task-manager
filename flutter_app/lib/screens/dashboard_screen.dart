@@ -173,6 +173,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  void _showStatusSheet(BuildContext context, Task task) {
+    final statuses = const [
+      {'label': 'Pending', 'value': 'pending', 'icon': Icons.schedule},
+      {
+        'label': 'In Progress',
+        'value': 'in_progress',
+        'icon': Icons.pending_actions,
+      },
+      {'label': 'Completed', 'value': 'completed', 'icon': Icons.check_circle},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Text(
+              'Update Status',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            ...statuses.map(
+              (s) => ListTile(
+                leading: Icon(s['icon'] as IconData),
+                title: Text(s['label'] as String),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await context.read<TaskProvider>().updateTaskStatus(
+                    task: task,
+                    status: s['value'] as String,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Status updated to ${s['label']}')),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSummaryCard(
     String title,
     int count,
@@ -321,6 +367,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         return TaskTile(
                           task: task,
                           onEdit: () => _showEditTaskSheet(context, task),
+                          onDelete: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('Delete Task'),
+                                content: const Text(
+                                  'Are you sure you want to delete this task?',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx, false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx, true),
+                                    child: const Text('Delete'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirm == true) {
+                              await context.read<TaskProvider>().deleteTask(
+                                task,
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Task deleted')),
+                              );
+                            }
+                          },
+                          onChangeStatus: () => _showStatusSheet(context, task),
                         );
                       },
                     ),
@@ -833,7 +909,9 @@ class _EditTaskSheetState extends State<EditTaskSheet> {
                     .map(
                       (category) => DropdownMenuItem(
                         value: category,
-                        child: Text(category),
+                        child: Text(
+                          category[0].toUpperCase() + category.substring(1),
+                        ),
                       ),
                     )
                     .toList(),

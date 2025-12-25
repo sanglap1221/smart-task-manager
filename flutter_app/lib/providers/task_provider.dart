@@ -192,4 +192,17 @@ class TaskProvider extends ChangeNotifier {
 
     await loadTasks();
   }
+
+  Future<void> updateTaskStatus({
+    required Task task,
+    required String status,
+  }) async {
+    await _apiService.updateTask(id: task.id, status: status);
+    await loadTasks();
+  }
+
+  Future<void> deleteTask(Task task) async {
+    await _apiService.deleteTask(task.id);
+    await loadTasks();
+  }
 }

@@ -65,6 +65,10 @@ class ApiService {
     return Task.fromJson(json);
   }
 
+  Future<void> deleteTask(String id) async {
+    await _dio.delete('$BASE_URL/tasks/$id');
+  }
+
   Future<Map<String, dynamic>?> previewTaskClassification(
     String title,
     String description,
