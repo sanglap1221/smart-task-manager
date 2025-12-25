@@ -33,7 +33,7 @@ Repository layout:
 - Backend API: backend/
 - Flutter app: flutter_app/
 
-## Database Schema (PostgreSQL/Supabase)
+## Database Schema (Supabase)
 
 Tables used by the API:
 
@@ -262,77 +262,16 @@ Notes
 - Networking: Dio (`ApiService`).
 - UI: Material 3 style widgets and theming.
 
-## Unit Tests
-
-- Location: backend/tests/classifier.test.js
-- Coverage: classification logic for category and priority + default behavior.
-  Run tests:
 
 ```bash
 cd backend
-npm test
 ```
 
 ## Screenshots (Add in this repo)
 
-Please add your screenshots to flutter_app/screenshots/ and they will render below automatically.
+<img width="466" height="1004" alt="image" src="https://github.com/user-attachments/assets/1a575607-76c0-471e-9c21-e279057a9182" />
+<img width="477" height="1013" alt="image" src="https://github.com/user-attachments/assets/2db31db5-928a-4602-af11-62aff702ecf5" />
+<img width="447" height="973" alt="image" src="https://github.com/user-attachments/assets/b8228635-5119-493d-a3e1-c2dc0a10ffaa" />
+<img width="448" height="980" alt="image" src="https://github.com/user-attachments/assets/0cae7b1e-82be-4253-b954-e510c8aec56e" />
 
-![Dashboard – Summary + List](flutter_app/screenshots/dashboard_1.png)
-![Create Task Bottom Sheet](flutter_app/screenshots/create_task.png)
-![Edit Task + Status](flutter_app/screenshots/edit_status.png)
 
-## What I’d Improve With More Time
-
-- Add authentication (Supabase Auth) and per-user task scopes.
-- Better entity extraction (NER) and richer classifier signals.
-- Offline-first sync in Flutter and caching layers.
-- Add e2e tests (Flutter integration + supertest for API).
-- CI/CD: GitHub Actions for test/build and Render deploy.
-
-## Submission Details (Email)
-
-Send only via email to: hirings@naviconinfra.com
-
-Subject (exact):
-
-```
-Dev Internship – Sanglap Ghosh
-```
-
-Attach a single PDF/TXT (e.g. `Submission_Details_Sanglap_Ghosh.pdf`) containing:
-
-- GitHub Repository Link
-- Live Backend URL (Render)
-- Any additional notes (optional)
-
-Email body (template):
-
-```
-Dear Hiring Team,
-
-As per the instructions shared via Internshala, I am submitting my completed
-assignment for the Developer Internship role.
-
-Please find below my submission details:
-- GitHub Repository: <your-github-link>
-- Live Backend URL (Render): https://smart-task-manager-my9r.onrender.com
-
-The project includes backend API, Supabase database, Flutter application,
-unit tests, and complete documentation as required.
-
-Thank you for the opportunity.
-
-Warm regards,
-Sanglap Ghosh
-```
-
-Deadline: 28 December 2025 – 11:59 PM IST
-
-## Final Checklist
-
-- [ ] GitHub repo ready (backend + Flutter)
-- [ ] Backend deployed on Render (URL in README)
-- [ ] README complete (this file)
-- [ ] Flutter screenshots added (see section above)
-- [ ] ≥ 3 unit tests (backend classification covered)
-- [ ] Email subject correct and sent before deadline
