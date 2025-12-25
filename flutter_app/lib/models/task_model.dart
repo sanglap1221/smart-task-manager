@@ -1,6 +1,7 @@
 class Task {
   final String id;
   final String title;
+  final String description;
   final String category;
   final String priority;
   final String status;
@@ -10,6 +11,7 @@ class Task {
   Task({
     required this.id,
     required this.title,
+    required this.description,
     required this.category,
     required this.priority,
     required this.status,
@@ -21,6 +23,7 @@ class Task {
     return Task(
       id: json['id'],
       title: json['title'],
+      description: json['description'] ?? '',
       category: json['category'],
       priority: json['priority'],
       status: json['status'],

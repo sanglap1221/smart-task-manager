@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/task_provider.dart';
 import '../widgets/task_tile.dart';
+import '../models/task_model.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -37,7 +38,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _showFilterBottomSheet(BuildContext context) {
     final taskProvider = context.read<TaskProvider>();
-    final categories = ['scheduling', 'finance', 'technical', 'safety'];
+    final categories = [
+      'general',
+      'scheduling',
+      'finance',
+      'technical',
+      'safety',
+    ];
     final priorities = ['low', 'medium', 'high'];
     final statuses = ['pending', 'in_progress', 'completed'];
 
@@ -155,6 +162,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showEditTaskSheet(BuildContext context, Task task) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => EditTaskSheet(task: task),
     );
   }
 
@@ -302,8 +317,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             child: CircularProgressIndicator(),
                           );
                         }
+                        final task = taskProvider.filteredTasks[index];
                         return TaskTile(
-                          task: taskProvider.filteredTasks[index],
+                          task: task,
+                          onEdit: () => _showEditTaskSheet(context, task),
                         );
                       },
                     ),
@@ -346,7 +363,13 @@ class _CreateTaskSheetState extends State<_CreateTaskSheet> {
   bool isPreviewLoading = false;
   bool isSubmitting = false;
 
-  final categories = ['scheduling', 'finance', 'technical', 'safety'];
+  final categories = [
+    'general',
+    'scheduling',
+    'finance',
+    'technical',
+    'safety',
+  ];
   final priorities = ['low', 'medium', 'high'];
 
   @override
@@ -615,6 +638,240 @@ class _CreateTaskSheetState extends State<_CreateTaskSheet> {
                           ),
                         )
                       : const Text('Create Task'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class EditTaskSheet extends StatefulWidget {
+  final Task task;
+  const EditTaskSheet({super.key, required this.task});
+
+  @override
+  State<EditTaskSheet> createState() => _EditTaskSheetState();
+}
+
+class _EditTaskSheetState extends State<EditTaskSheet> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController titleController;
+  late TextEditingController descriptionController;
+  late TextEditingController dueDateController;
+  late TextEditingController assignedToController;
+
+  String? selectedCategory;
+  String? selectedPriority;
+  bool isSubmitting = false;
+
+  final categories = [
+    'general',
+    'scheduling',
+    'finance',
+    'technical',
+    'safety',
+  ];
+  final priorities = ['low', 'medium', 'high'];
+
+  @override
+  void initState() {
+    super.initState();
+    titleController = TextEditingController(text: widget.task.title);
+    descriptionController = TextEditingController(
+      text: widget.task.description,
+    );
+    assignedToController = TextEditingController(
+      text: widget.task.assignedTo ?? '',
+    );
+    selectedCategory = widget.task.category;
+    selectedPriority = widget.task.priority;
+    dueDateController = TextEditingController(
+      text: widget.task.dueDate != null
+          ? '${widget.task.dueDate!.day}/${widget.task.dueDate!.month}/${widget.task.dueDate!.year}'
+          : '',
+    );
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    descriptionController.dispose();
+    dueDateController.dispose();
+    assignedToController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selectDate() async {
+    DateTime initial = widget.task.dueDate ?? DateTime.now();
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (pickedDate != null) {
+      dueDateController.text =
+          '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
+    }
+  }
+
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (selectedCategory == null || selectedPriority == null) return;
+
+    setState(() => isSubmitting = true);
+    try {
+      DateTime? dueDate;
+      if (dueDateController.text.isNotEmpty) {
+        final parts = dueDateController.text.split('/');
+        dueDate = DateTime(
+          int.parse(parts[2]),
+          int.parse(parts[1]),
+          int.parse(parts[0]),
+        );
+      }
+
+      await context.read<TaskProvider>().updateTask(
+        task: widget.task,
+        title: titleController.text,
+        description: descriptionController.text,
+        category: selectedCategory,
+        priority: selectedPriority,
+        assignedTo: assignedToController.text.isEmpty
+            ? null
+            : assignedToController.text,
+        dueDate: dueDate,
+      );
+
+      if (!mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Task updated successfully!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error updating task: $e')));
+    } finally {
+      setState(() => isSubmitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          top: 16,
+        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Edit Task',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Title',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Please enter a title'
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Please enter a description'
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: dueDateController,
+                decoration: const InputDecoration(
+                  labelText: 'Due Date',
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(Icons.calendar_today),
+                ),
+                readOnly: true,
+                onTap: _selectDate,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: assignedToController,
+                decoration: const InputDecoration(
+                  labelText: 'Assigned To (Optional)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: selectedCategory,
+                decoration: const InputDecoration(
+                  labelText: 'Category',
+                  border: OutlineInputBorder(),
+                ),
+                items: categories
+                    .map(
+                      (category) => DropdownMenuItem(
+                        value: category,
+                        child: Text(category),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) => setState(() => selectedCategory = value),
+                validator: (value) =>
+                    value == null ? 'Please select a category' : null,
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: selectedPriority,
+                decoration: const InputDecoration(
+                  labelText: 'Priority',
+                  border: OutlineInputBorder(),
+                ),
+                items: priorities
+                    .map(
+                      (priority) => DropdownMenuItem(
+                        value: priority,
+                        child: Text(priority.toUpperCase()),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) => setState(() => selectedPriority = value),
+                validator: (value) =>
+                    value == null ? 'Please select a priority' : null,
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: isSubmitting ? null : _submitForm,
+                  child: isSubmitting
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Save Changes'),
                 ),
               ),
             ],

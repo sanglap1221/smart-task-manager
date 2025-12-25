@@ -41,6 +41,30 @@ class ApiService {
     // The backend will handle the response
   }
 
+  Future<Task> updateTask({
+    required String id,
+    String? title,
+    String? description,
+    String? category,
+    String? priority,
+    String? assignedTo,
+    DateTime? dueDate,
+    String? status,
+  }) async {
+    final payload = <String, dynamic>{};
+    if (title != null) payload['title'] = title;
+    if (description != null) payload['description'] = description;
+    if (category != null) payload['category'] = category;
+    if (priority != null) payload['priority'] = priority;
+    if (assignedTo != null) payload['assigned_to'] = assignedTo;
+    if (dueDate != null) payload['due_date'] = dueDate.toIso8601String();
+    if (status != null) payload['status'] = status;
+
+    final response = await _dio.patch('$BASE_URL/tasks/$id', data: payload);
+    final Map<String, dynamic> json = response.data['data'];
+    return Task.fromJson(json);
+  }
+
   Future<Map<String, dynamic>?> previewTaskClassification(
     String title,
     String description,

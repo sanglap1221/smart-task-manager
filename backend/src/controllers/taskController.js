@@ -34,19 +34,26 @@ exports.classifyTaskPreview = async (req, res) => {
 // POST /api/tasks
 exports.createTask = async (req, res) => {
     try {
-        const { title, description, assigned_to, due_date } = taskSchema.parse(req.body);
+        const { title, description, assigned_to, due_date, category, priority } = taskSchema.parse(req.body);
         const analysis = classifyTask(title, description);
+        const finalCategory = category ?? analysis.category;
+        const finalPriority = priority ?? analysis.priority;
 
         const { data, error } = await supabase
             .from('tasks')
-            .insert([{ 
-                title, 
-                description, 
-                assigned_to, 
-                due_date,
-                ...analysis,
-                status: 'pending' 
-            }])
+            .insert([
+                {
+                    title,
+                    description,
+                    assigned_to,
+                    due_date,
+                    category: finalCategory,
+                    priority: finalPriority,
+                    extracted_entities: analysis.extracted_entities,
+                    suggested_actions: analysis.suggested_actions,
+                    status: 'pending',
+                },
+            ])
             .select();
 
         if (error) throw error;

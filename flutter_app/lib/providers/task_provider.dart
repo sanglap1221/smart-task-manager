@@ -168,4 +168,28 @@ class TaskProvider extends ChangeNotifier {
 
     await loadTasks();
   }
+
+  Future<void> updateTask({
+    required Task task,
+    String? title,
+    String? description,
+    String? category,
+    String? priority,
+    String? assignedTo,
+    DateTime? dueDate,
+    String? status,
+  }) async {
+    await _apiService.updateTask(
+      id: task.id,
+      title: title,
+      description: description,
+      category: category,
+      priority: priority,
+      assignedTo: assignedTo,
+      dueDate: dueDate,
+      status: status,
+    );
+
+    await loadTasks();
+  }
 }

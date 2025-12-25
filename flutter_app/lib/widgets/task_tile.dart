@@ -3,8 +3,9 @@ import '../models/task_model.dart';
 
 class TaskTile extends StatelessWidget {
   final Task task;
+  final VoidCallback? onEdit;
 
-  const TaskTile({super.key, required this.task});
+  const TaskTile({super.key, required this.task, this.onEdit});
 
   Color _getStatusColor(String status) {
     switch (status) {
@@ -40,6 +41,7 @@ class TaskTile extends StatelessWidget {
       'safety': Colors.red,
       'maintenance': Colors.purple,
       'operations': Colors.cyan,
+      'general': Colors.blueGrey,
     };
     return categoryMap[task.category.toLowerCase()] ?? Colors.blueGrey;
   }
@@ -153,8 +155,11 @@ class TaskTile extends StatelessWidget {
             ],
           ),
         ),
-        trailing: task.assignedTo != null
-            ? CircleAvatar(
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (task.assignedTo != null)
+              CircleAvatar(
                 radius: 16,
                 backgroundColor: _getCategoryColor(),
                 child: Text(
@@ -165,8 +170,20 @@ class TaskTile extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              )
-            : null,
+              ),
+            const SizedBox(width: 8),
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'edit' && onEdit != null) {
+                  onEdit!();
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
