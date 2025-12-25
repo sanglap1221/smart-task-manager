@@ -33,4 +33,26 @@ class Task {
           : null,
     );
   }
+
+  // Create a copy with updated fields
+  Task copyWith({
+    String? title,
+    String? description,
+    String? category,
+    String? priority,
+    String? status,
+    String? assignedTo,
+    DateTime? dueDate,
+  }) {
+    return Task(
+      id: id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      category: category ?? this.category,
+      priority: priority ?? this.priority,
+      status: status ?? this.status,
+      assignedTo: assignedTo ?? this.assignedTo,
+      dueDate: dueDate ?? this.dueDate,
+    );
+  }
 }

@@ -37,8 +37,6 @@ class ApiService {
         "due_date": dueDate?.toIso8601String(),
       },
     );
-    // Response is now wrapped: { data: {...} }
-    // The backend will handle the response
   }
 
   Future<Task> updateTask({
@@ -60,9 +58,16 @@ class ApiService {
     if (dueDate != null) payload['due_date'] = dueDate.toIso8601String();
     if (status != null) payload['status'] = status;
 
-    final response = await _dio.patch('$BASE_URL/tasks/$id', data: payload);
-    final Map<String, dynamic> json = response.data['data'];
-    return Task.fromJson(json);
+    print('🔄 Updating task: $id with payload: $payload');
+
+    try {
+      final response = await _dio.patch('$BASE_URL/tasks/$id', data: payload);
+
+      final Map<String, dynamic> json = response.data['data'];
+      return Task.fromJson(json);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> deleteTask(String id) async {

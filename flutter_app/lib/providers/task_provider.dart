@@ -197,12 +197,29 @@ class TaskProvider extends ChangeNotifier {
     required Task task,
     required String status,
   }) async {
-    await _apiService.updateTask(id: task.id, status: status);
-    await loadTasks();
+    final index = _tasks.indexWhere((t) => t.id == task.id);
+    if (index != -1) {
+      _tasks[index] = task.copyWith(status: status);
+      notifyListeners();
+    }
+
+    try {
+      await _apiService.updateTask(id: task.id, status: status);
+    } catch (e) {
+      await loadTasks();
+      rethrow;
+    }
   }
 
   Future<void> deleteTask(Task task) async {
-    await _apiService.deleteTask(task.id);
-    await loadTasks();
+    _tasks.removeWhere((t) => t.id == task.id);
+    notifyListeners();
+
+    try {
+      await _apiService.deleteTask(task.id);
+    } catch (e) {
+      await loadTasks();
+      rethrow;
+    }
   }
 }
